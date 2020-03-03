@@ -1,0 +1,78 @@
+package com.example.carros;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.management.RuntimeErrorException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+@Service
+public class CarroService {
+	
+	@Autowired
+	private CarroRepository rep;
+	
+	public List<CarroDTO> getCarros() {
+
+		return rep.findAll().stream().map(CarroDTO::create).collect(Collectors.toList());
+		
+	}
+	
+	public CarroDTO getCarroById(Long id) {
+		return rep.findById(id).map(CarroDTO::create).orElseThrow(() -> new ObjectNotFoundException("Carro não encontrado"));
+	}
+	
+	public List<Carro> getCarroByTipo(String tipo) {
+		return rep.findByTipo(tipo);
+	}
+	
+	public CarroDTO insert(Carro carro) {
+		Assert.isNull(carro.getId(), "Nao foi possivel inserir o registro");
+		
+		return CarroDTO.create(rep.save(carro));
+	}
+
+	public CarroDTO update(Carro carro, Long id) {
+		Assert.notNull(id,"Não foi possível atualizar o registro");
+
+        // Busca o carro no banco de dados
+        Optional<Carro> optional = rep.findById(id);
+        if(optional.isPresent()) {
+            Carro db = optional.get();
+            // Copiar as propriedades
+            db.setNome(carro.getNome());
+            db.setTipo(carro.getTipo());
+            System.out.println("Carro id " + db.getId());
+
+            // Atualiza o carro
+            rep.save(db);
+            
+			return CarroDTO.create(db);
+		 } else {
+	            return null;
+	        }
+	}
+	
+	public void delete(Long id) {
+		rep.deleteById(id);
+	
+	}
+
+	
+	public List<Carro> getCarrosFake() {
+		List<Carro> carros = new ArrayList<>();
+
+		/*carros.add(new Carro(1L, "Ferrari"));
+		carros.add(new Carro(2L, "Lamborghini"));
+		carros.add(new Carro(3L, "Zonda"));*/
+		
+		return carros;
+		
+	}
+
+}

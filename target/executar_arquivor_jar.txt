@@ -1,0 +1,3 @@
+executando arquivor jar no prompt
+
+digite java -jar diretorio do arquivo e (nome do arquivo jar)
